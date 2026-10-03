@@ -1,4 +1,4 @@
-# Stock · Cafetería
+# BaristaStock
 
 PWA para llevar el stock, los pedidos y el **inventario mensual** de una cafetería con tres locales (RDJ, QR y PV). Funciona sin conexión y se instala en la pantalla de inicio del móvil.
 
@@ -17,7 +17,7 @@ La app trae un **catálogo de ejemplo** con productos y proveedores ficticios. E
 
 ## Tecnología
 
-HTML, CSS y JavaScript sin frameworks, en un solo archivo, con un service worker para el modo sin conexión. El .xlsx se escribe a mano: XML de SpreadsheetML empaquetado en un ZIP sin compresión.
+HTML, CSS y JavaScript sin frameworks, en un solo archivo, con un service worker para el modo sin conexión. Diseño oscuro «Dark Utility» (ámbar y verde azulado) definido en Google Stitch; tipografías Inter y JetBrains Mono alojadas en el propio repositorio (licencia SIL OFL, en `fonts/`). El .xlsx se escribe a mano: XML de SpreadsheetML empaquetado en un ZIP sin compresión.
 
 ## Autoría
 

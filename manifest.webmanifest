@@ -1,13 +1,13 @@
 {
-  "name": "Stock · Cafetería",
-  "short_name": "Stock",
+  "name": "BaristaStock",
+  "short_name": "BaristaStock",
   "description": "Inventario mensual, stock y pedidos de los tres locales de la cafetería.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0E1113",
-  "theme_color": "#0E6F63",
+  "background_color": "#111417",
+  "theme_color": "#111417",
   "lang": "es",
   "icons": [
     {
@@ -25,6 +25,11 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ]
 }

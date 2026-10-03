@@ -1,7 +1,7 @@
 /* Service worker — Stock Cafetería
    Cachea la app completa para que funcione sin conexión.
    Sube el número de VERSION cada vez que reemplaces index.html. */
-var VERSION = 'stock-cafe-v3';
+var VERSION = 'stock-cafe-v4';
 var ASSETS = [
   './',
   './index.html',
@@ -9,7 +9,14 @@ var ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-512-maskable.png',
-  './apple-touch-icon.png'
+  './apple-touch-icon.png',
+  './icon.svg',
+  './fonts/inter-latin-400-normal.woff2',
+  './fonts/inter-latin-500-normal.woff2',
+  './fonts/inter-latin-600-normal.woff2',
+  './fonts/inter-latin-700-normal.woff2',
+  './fonts/jetbrains-mono-latin-500-normal.woff2',
+  './fonts/jetbrains-mono-latin-700-normal.woff2'
 ];
 
 self.addEventListener('install', function(e){
