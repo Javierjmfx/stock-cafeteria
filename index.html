@@ -225,6 +225,30 @@ button .ico{margin-right:8px}
   .brand .logo{display:none}
 }
 .znext{margin-top:20px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.qop{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:14px;border-radius:14px;background:var(--card);border:1px solid var(--line);min-height:104px}
+.qop .qi{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin-bottom:8px}
+.qop .qi .ico{margin:0}
+.qop .qi.rojo{background:var(--st-rojo-bg);color:var(--st-rojo-t)}
+.qop .qi.teal{background:var(--teal);color:#E8FFFA}
+.qop b{font-size:14.5px;font-weight:700}
+.qop small{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+.picks{margin-top:8px}
+.pick{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;margin-bottom:6px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px}
+.pick span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pickd{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--acc);border-radius:12px;padding:12px 14px}
+.pickd b{display:block;font-size:15px}
+.mot{background:var(--field);border:1px solid var(--line);font-size:13.5px;min-height:52px}
+.mot.on{background:var(--st-rojo-bg);border-color:var(--st-rojo);color:var(--st-rojo-t)}
+.step.big{justify-content:center}
+.step.big button{width:64px;height:60px} .step.big input{width:110px;height:60px;font-size:26px}
+#ab_ok{position:sticky;bottom:8px;box-shadow:0 -8px 24px rgba(17,20,23,.9),var(--shadow);z-index:3}
+.redbtn{background:#93000A;border-color:#93000A;color:#FFDAD6;font-weight:700}
+.abrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+.abn{flex:1;min-width:0;font-size:12px;color:var(--ink3)}
+.abn b{display:block;font-size:14px;color:var(--ink);font-weight:600;margin-bottom:2px}
+.abn .pk{margin-top:6px}
+.abrow input{width:84px;flex:0 0 auto;text-align:center;font-family:var(--mono);font-weight:700;font-size:18px}
 
 .mcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px}
 .mcard .mh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
@@ -497,6 +521,22 @@ function toast(msg){
   clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2300);
 }
 function vibrar(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||8); }catch(e){} }
+/* Pitido corto tipo lector (Web Audio, sin archivos). Se activa en Ajustes. */
+let actx=null;
+function pitido(tipo){
+  if(!CFG.pitido) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+    const notas = tipo==='ok' ? [[880,0],[1320,.09]] : [[1760,0]];
+    notas.forEach(([f,t0])=>{
+      const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime+t0;
+      o.type='square'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.06,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.07);
+      o.connect(g).connect(actx.destination); o.start(t); o.stop(t+0.08);
+    });
+  }catch(e){}
+}
 
 /* ============================================================
    PERSISTENCIA
@@ -986,6 +1026,7 @@ const ICOS = {
   compartir:'<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.2 10.8 7.6-4.1M8.2 13.2l7.6 4.1"/>',
   equipo:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.8 5.5-4.8s4.9 1.8 5.5 4.8"/><path d="M15.5 5.2a3.2 3.2 0 0 1 0 5.6M17.5 14.6c1.6.6 2.7 2.1 3 4.4"/>',
   recibir:'<path d="M12 4v10m0 0-4-4m4 4 4-4"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/>',
+  merma:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M10 11v5M14 11v5"/>',
   excel:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="m9.5 11 5 6m0-6-5 6"/>'
 };
 const ic = (k, extra) => '<svg class="ico" viewBox="0 0 24 24"'+(extra||'')+'>'+(ICOS[k]||'')+'</svg>';
@@ -1174,7 +1215,7 @@ function cambiarConteo(sku, fn){
   const inv=invAbierto(CFG.local); if(!inv) return;
   const c=inv.c[sku];
   setConteo(inv, sku, fn(c?c.v:null));
-  pintarFila(sku, true); vibrar();
+  pintarFila(sku, true); vibrar(); pitido();
 }
 
 function abrirZona(z){
@@ -1193,6 +1234,8 @@ function menuConteo(sku){
     '<div class="eyebrow" style="margin-bottom:8px">Sumar lo que hay en otro sitio</div>'+
     '<div class="bar"><input id="mc_add" inputmode="decimal" placeholder="Ej.: 6 en la cámara" enterkeyhint="done">'+
       '<button class="primary" id="mc_sumar" style="flex:0 0 auto">Sumar</button></div>'+
+    '<div class="grid2" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px">'+
+      [1,5,10].map(k=>'<button data-mcq="'+k+'" class="num">+'+k+'</button>').join('')+'</div>'+
     (f>1?'<div class="grid2" style="margin-bottom:10px"><button id="mc_pkmas">+1 '+esc(p.fmtNombre||'caja')+' (×'+fmt(f)+')</button>'+
          '<button id="mc_pkmenos">−1 '+esc(p.fmtNombre||'caja')+'</button></div>':'')+
     '<div class="grid2"><button id="mc_cero">No queda: 0</button><button id="mc_borrar">Borrar conteo</button></div>'+
@@ -1205,6 +1248,7 @@ function menuConteo(sku){
     hecho(v=>(v||0)+x, 'Sumado: '+fmt(x)+' '+p.unidad);
   };
   $('mc_sumar').addEventListener('click',sumar);
+  document.querySelectorAll('[data-mcq]').forEach(b=>b.addEventListener('click',()=>{ const k=+b.dataset.mcq; hecho(v=>(v||0)+k, '+'+k+' '+p.unidad); }));
   $('mc_add').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sumar(); } });
   if(f>1){
     $('mc_pkmas').addEventListener('click',()=>hecho(v=>(v||0)+f));
@@ -1486,11 +1530,106 @@ function vistaStock(){
                  ['OK','OK',cont('OK')],['EXCESO','Exceso',cont('EXCESO')],['CONFIGURAR','Sin configurar',cont('CONFIGURAR')]];
   const o={'SIN STOCK':0,'PEDIR':1,'EXCESO':2,'OK':3,'CONFIGURAR':4};
   const f=filtrar(d).sort((a,b)=>(o[a.estado]-o[b.estado])||a.p.nombre.localeCompare(b.p.nombre,'es'));
-  return '<div class="bar"><input id="q" type="search" placeholder="Buscar producto, SKU o proveedor" value="'+esc(ui.q)+'"></div>'+
+  return (ui.q?'':'<div class="quick">'+
+      '<button class="qop" data-merma><span class="qi rojo">'+ic('merma')+'</span><b>Merma exprés</b><small>Rotura, caducado, derrame</small></button>'+
+      '<button class="qop" data-albaran><span class="qi teal">'+ic('recibir')+'</span><b>Recepción albarán</b><small>Entrada de mercancía</small></button>'+
+    '</div>')+
+    '<div class="bar"><input id="q" type="search" placeholder="Buscar producto, SKU o proveedor" value="'+esc(ui.q)+'"></div>'+
     '<div class="chips">'+estados.map(e=>'<button class="chip'+(ui.estado===e[0]?' on':'')+'" data-est="'+esc(e[0])+'">'+e[1]+'<span class="n">'+e[2]+'</span></button>').join('')+'</div>'+
     selectProvCat()+
     (f.length ? recorta(f).map(fila).join('')+verMas(f.length)
       : '<div class="empty"><b>Nada por aquí</b>Prueba a quitar algún filtro o cambia la búsqueda.</div>');
+}
+
+/* ---------- buscador de producto dentro de una hoja ---------- */
+function buscadorProducto(id, alElegir){
+  const L=CFG.local, inp=$(id+'_q'), res=$(id+'_r');
+  const pintar=()=>{
+    const q=inp.value.trim().toLowerCase();
+    const l=prodsL(L).filter(p=>!q||(p.nombre+' '+p.sku).toLowerCase().indexOf(q)>-1).slice(0,q?8:5);
+    res.innerHTML=l.map(p=>'<button class="pick" data-pick="'+esc(p.sku)+'"><span>'+esc(p.nombre)+'</span><span class="sku">'+esc(p.sku)+'</span></button>').join('')||
+      '<p class="hint">Sin resultados</p>';
+  };
+  inp.addEventListener('input',pintar);
+  res.addEventListener('click',e=>{ const b=e.target.closest('[data-pick]'); if(b) alElegir(prodSku(b.dataset.pick)); });
+  pintar();
+}
+
+/* ---------- Merma exprés ---------- */
+const MOTIVOS=[['Purga de molino','purga'],['Caducado','cad'],['Derrame en servicio','derrame'],['Rotura','rotura']];
+function hojaMerma(skuIni){
+  const L=CFG.local;
+  let p=skuIni?prodSku(skuIni):null, motivo=MOTIVOS[0][0], cant=1;
+  const pintar=()=>{
+    abrirSheet(cabeceraSheet('Merma exprés', 'Se descuenta del stock de '+etiq(L))+
+      '<div class="eyebrow" style="margin-bottom:8px">Producto</div>'+
+      (p ? '<div class="pickd"><span><b>'+esc(p.nombre)+'</b><span class="sku">'+esc(p.sku)+'</span></span><button class="linkbtn" id="mm_cambiar">Cambiar</button></div>'
+         : '<input id="mm_q" type="search" placeholder="Buscar producto o SKU" autocomplete="off"><div class="picks" id="mm_r"></div>')+
+      '<div class="eyebrow" style="margin:16px 0 8px">Motivo</div>'+
+      '<div class="grid2">'+MOTIVOS.map(m=>'<button data-mot="'+esc(m[0])+'" class="mot'+(motivo===m[0]?' on':'')+'">'+esc(m[0])+'</button>').join('')+'</div>'+
+      '<div class="eyebrow" style="margin:16px 0 8px">Cantidad'+(p?' ('+esc(p.unidad)+')':'')+'</div>'+
+      '<div class="step big"><button id="mm_menos" aria-label="Menos">−</button><input id="mm_c" inputmode="decimal" value="'+fmtIn(cant)+'"><button id="mm_mas" data-st="+" aria-label="Más">+</button></div>'+
+      '<button class="wide big redbtn" id="mm_ok" style="margin-top:18px"'+(p?'':' disabled')+'>'+ic('merma')+'Registrar merma'+(p?' (−'+fmt(cant)+' '+esc(p.unidad)+')':'')+'</button>');
+    if(!p) buscadorProducto('mm', x=>{ p=x; pintar(); });
+    else $('mm_cambiar').addEventListener('click',()=>{ p=null; pintar(); });
+    document.querySelectorAll('[data-mot]').forEach(b=>b.addEventListener('click',()=>{ motivo=b.dataset.mot; pintar(); }));
+    const leer=()=>{ const v=leerNum($('mm_c').value); if(v!=null&&!isNaN(v)) cant=Math.max(0,v); };
+    $('mm_c').addEventListener('change',()=>{ leer(); pintar(); });
+    $('mm_menos').addEventListener('click',()=>{ leer(); cant=Math.max(0,r3(cant-1)); pintar(); });
+    $('mm_mas').addEventListener('click',()=>{ leer(); cant=r3(cant+1); pintar(); });
+    $('mm_ok').addEventListener('click',()=>{
+      leer(); if(!p||!(cant>0)){ toast('Elige producto y cantidad'); return; }
+      addMov(p.sku,'Merma',cant,motivo,hoyISO(),L); pitido('ok'); vibrar(30);
+      cerrarSheet(); render(); toast('Merma: −'+fmt(cant)+' '+p.unidad+' de '+p.nombre);
+    });
+  };
+  pintar();
+}
+
+/* ---------- Recepción de albarán ---------- */
+function hojaAlbaran(provIni){
+  const L=CFG.local, provs=listaProv();
+  let prov=provIni||ui.albProv||provs[0], q='';
+  const cant={};
+  const pintar=()=>{
+    const items=prodsL(L).filter(p=>p.prov===prov && (!q||(p.nombre+' '+p.sku).toLowerCase().indexOf(q)>-1))
+      .sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
+    const nsel=Object.keys(cant).filter(k=>cant[k]>0).length;
+    const alb=$('ab_n')?$('ab_n').value:'';
+    abrirSheet(cabeceraSheet('Recepción de albarán','Entrada de mercancía en '+etiq(L))+
+      '<div class="grid2">'+
+        '<label class="fl"><span>Proveedor</span><select id="ab_p">'+provs.map(v=>'<option'+(v===prov?' selected':'')+'>'+esc(v)+'</option>').join('')+'</select></label>'+
+        '<label class="fl"><span>Nº albarán</span><input id="ab_n" value="'+esc(alb)+'" placeholder="Opcional" autocomplete="off"></label>'+
+      '</div>'+
+      '<input id="ab_q" type="search" placeholder="Filtrar productos de '+esc(prov)+'" value="'+esc(q)+'" autocomplete="off" style="margin-bottom:10px">'+
+      items.map(p=>{
+        const f=n(p.fmtUds,1)||1, v=cant[p.sku];
+        return '<div class="abrow"><div class="abn"><b>'+esc(p.nombre)+'</b><span class="sku">'+esc(p.sku)+'</span> · '+esc(p.unidad)+
+          (f>1?' <button class="pk" data-abpk="'+esc(p.sku)+'">+1 '+esc(p.fmtNombre||'caja')+' <span>×'+fmt(f)+'</span></button>':'')+'</div>'+
+          '<input inputmode="decimal" data-abq="'+esc(p.sku)+'" value="'+fmtIn(v)+'" placeholder="0"></div>';
+      }).join('')+
+      (items.length?'':'<p class="hint">Este proveedor no tiene productos en '+esc(L)+'.</p>')+
+      '<button class="teal wide big" id="ab_ok" style="margin-top:16px"'+(nsel?'':' disabled')+'>'+ic('check')+'Registrar entrada'+(nsel?' · '+nsel+' producto'+(nsel>1?'s':''):'')+'</button>');
+    $('ab_p').addEventListener('change',e=>{ prov=e.target.value; ui.albProv=prov; q=''; pintar(); });
+    $('ab_q').addEventListener('change',e=>{ q=e.target.value.trim().toLowerCase(); pintar(); });
+    const sh=$('sheet');
+    sh.querySelectorAll('[data-abq]').forEach(i=>i.addEventListener('input',()=>{
+      const v=leerNum(i.value); if(v==null||isNaN(v)||v<=0) delete cant[i.dataset.abq]; else cant[i.dataset.abq]=v;
+      const k=Object.keys(cant).length, b=$('ab_ok');
+      b.disabled=!k; b.innerHTML=ic('check')+'Registrar entrada'+(k?' · '+k+' producto'+(k>1?'s':''):'');
+    }));
+    sh.querySelectorAll('[data-abpk]').forEach(b=>b.addEventListener('click',()=>{
+      const p=prodSku(b.dataset.abpk), f=n(p.fmtUds,1)||1; cant[p.sku]=r3((cant[p.sku]||0)+f);
+      const s=sh.scrollTop; pintar(); $('sheet').scrollTop=s; vibrar(); pitido();
+    }));
+    $('ab_ok').addEventListener('click',()=>{
+      const ks=Object.keys(cant).filter(k=>cant[k]>0); if(!ks.length) return;
+      const nota='Albarán '+prov+($('ab_n').value.trim()?' '+$('ab_n').value.trim():'');
+      ks.forEach(sku=>addMov(sku,'Entrada',cant[sku],nota,hoyISO(),L));
+      pitido('ok'); vibrar(30); cerrarSheet(); render(); toast(ks.length+' entradas registradas en '+L);
+    });
+  };
+  pintar();
 }
 
 /* ============================================================
@@ -1501,7 +1640,9 @@ function vistaPedido(){
   const d=conCalc().filter(x=>x.estado==='PEDIR'||x.estado==='SIN STOCK');
   if(!d.length) return '<div class="empty"><b>No hay nada que pedir en '+esc(CFG.local)+'</b>Cuando alguna referencia baje de su punto de pedido aparecerá aquí, agrupada por proveedor.</div>';
   const g={}; d.forEach(x=>(g[x.p.prov]=g[x.p.prov]||[]).push(x));
-  return Object.keys(g).sort().map(prov=>{
+  const nprov=Object.keys(g).length;
+  return (nprov>1?'<button class="primary wide big" data-enviartodos style="margin-bottom:14px">'+ic('envio')+'Enviar los '+nprov+' pedidos</button>':'')+
+    Object.keys(g).sort().map(prov=>{
     const items=g[prov].sort((a,b)=>a.p.nombre.localeCompare(b.p.nombre,'es'));
     let importe=0, conPrecio=0;
     items.forEach(x=>{ if(x.p.precio!=null){ importe+=x.p.precio*udsPedido(x); conPrecio++; } });
@@ -1573,7 +1714,8 @@ function vistaMas(){
   const idx={}; P.forEach(p=>idx[p.sku]=p);
   return '<div class="sect"><div class="eyebrow" style="margin-bottom:10px">Este móvil</div>'+
       '<div class="item"><button class="ibody" data-nombre><div class="iname"><div class="t">'+esc(CFG.nombre||'Sin nombre')+'</div>'+
-      '<div class="m">Nombre con el que cuentas · local por defecto '+esc(L)+'</div></div><div class="inums"><span class="linkbtn">Cambiar</span></div></button></div></div>'+
+      '<div class="m">Nombre con el que cuentas · local por defecto '+esc(L)+'</div></div><div class="inums"><span class="linkbtn">Cambiar</span></div></button></div>'+
+      '<button class="tog'+(CFG.pitido?' on':'')+'" id="t_pitido"><span class="sw"></span><span>Pitido al contar<small>Un pitido corto como el de un lector al tocar + o registrar. La vibración va siempre.</small></span></button></div>'+
 
     '<div class="sect"><div class="eyebrow" style="margin-bottom:10px">Locales</div>'+
       LIDS.map(id=>'<label class="fl"><span>'+id+'</span><input data-nomloc="'+id+'" value="'+esc(NOMLOC[id]||'')+'" placeholder="Nombre del local (opcional)" maxlength="30"></label>').join('')+
@@ -1929,6 +2071,12 @@ $main.addEventListener('click',e=>{
     const f=n(x.p.fmtUds,1)||1;
     ui.pedido[sku]=Math.max(0, udsPedido(x)+paso*f); render(); return;
   }
+  if(at('[data-merma]')){ hojaMerma(); return; }
+  if(at('[data-albaran]')){ hojaAlbaran(); return; }
+  if(at('[data-enviartodos]')){
+    const provs=[...new Set(conCalc().filter(x=>x.estado==='PEDIR'||x.estado==='SIN STOCK').map(x=>x.p.prov))].sort();
+    mostrarTexto('Todos los pedidos', provs.map(textoPedido).join('\n\n────────\n\n'), 'Un bloque por proveedor', true); return;
+  }
   if(b=at('[data-copiar]')){
     const prov=b.dataset.copiar;
     mostrarTexto('Pedido a '+prov, textoPedido(prov), 'Pégalo en WhatsApp, correo o el portal del proveedor', true); return;
@@ -1958,6 +2106,7 @@ $main.addEventListener('click',e=>{
   if(b=at('[data-delmov]')){
     M=M.filter(x=>x.id!==b.dataset.delmov); invalidar(); guardar(); render(); toast('Movimiento borrado'); return;
   }
+  if(t.closest('#t_pitido')){ CFG.pitido=!CFG.pitido; guardar(); render(); if(CFG.pitido) pitido('ok'); return; }
   if(t.id==='expjson'){ descargarBlob('stock-copia-'+hoyISO()+'.json', new Blob([copiaJSON()],{type:'application/json'})); return; }
   if(t.id==='sharecat'){ compartirArchivo('stock-catalogo-'+hoyISO()+'.json', new Blob([catalogoJSON()],{type:'application/json'})); return; }
   if(t.id==='guardarloc'){

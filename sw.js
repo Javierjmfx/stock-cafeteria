@@ -1,7 +1,7 @@
 /* Service worker — Stock Cafetería
    Cachea la app completa para que funcione sin conexión.
    Sube el número de VERSION cada vez que reemplaces index.html. */
-var VERSION = 'stock-cafe-v4';
+var VERSION = 'stock-cafe-v5';
 var ASSETS = [
   './',
   './index.html',
