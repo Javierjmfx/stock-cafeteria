@@ -1,0 +1,64 @@
+# ============================================================
+#  BLOQUEO DE DATOS — nada de esto puede llegar a GitHub
+#  La app no lleva datos dentro: cada móvil guarda los suyos.
+# ============================================================
+
+# Catálogo real, copias de seguridad y cualquier JSON de datos
+*.json
+!package.json
+catalogo-privado*
+*-privado.*
+stock-copia-*
+copia-*
+
+# Excel, CSV e informes exportados desde la app
+*.xlsx
+*.xlsm
+*.xls
+*.csv
+*.ods
+inventario-*
+movimientos-*
+catalogo-*
+informe-*
+
+# Documentos y capturas que puedan tener datos de los locales
+*.pdf
+*.docx
+*.doc
+capturas/
+screenshots/
+*.jpg
+*.jpeg
+*.heic
+
+# Claves, contraseñas y configuración local
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+secrets*
+credenciales*
+
+# Bases de datos
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+supabase/.temp/
+.vercel/
+.netlify/
+
+# Sistema y editores
+node_modules/
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+*.log
+*.bak
+*.tmp
+~$*

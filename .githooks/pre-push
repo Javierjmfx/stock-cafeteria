@@ -1,0 +1,7 @@
+#!/bin/sh
+# Candado: no se publica nada sin PUBLICAR=si, y se revisa todo el repositorio.
+if ! command -v node >/dev/null 2>&1; then
+  [ "$PUBLICAR" = "si" ] || { echo "GUARDIA: publicar está bloqueado (PUBLICAR=si para subir)."; exit 1; }
+  exit 0
+fi
+exec node "$(git rev-parse --show-toplevel)/.githooks/guardia.js" push

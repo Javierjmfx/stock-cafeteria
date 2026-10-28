@@ -1,0 +1,9 @@
+#!/bin/sh
+# Revisa lo que vas a guardar en Git. Si falta Node, bloquea por tipo de archivo.
+if command -v node >/dev/null 2>&1; then
+  exec node "$(git rev-parse --show-toplevel)/.githooks/guardia.js" commit
+fi
+malos=$(git diff --cached --name-only --diff-filter=ACMR | grep -Eiv '^(index\.html|sw\.js|manifest\.webmanifest|robots\.txt|README\.md|SEGURIDAD\.md|\.gitignore|\.githooks/.*|.*\.woff2|(icon|apple-touch-icon).*\.(png|svg))$')
+if [ -n "$malos" ]; then
+  echo "GUARDIA: estos archivos no se suben nunca:"; echo "$malos"; exit 1
+fi
